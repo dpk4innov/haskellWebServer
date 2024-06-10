@@ -7,7 +7,6 @@
 module Database where
 
 import           Control.Monad.Logger
-import           Control.Monad.Reader (runReaderT)
 import           Data.Int (Int64)
 import           Database.Persist
 import           Database.Persist.Postgresql
@@ -27,7 +26,7 @@ localConnString DBConfig {..} = [i|host=#{dbHost} port=#{dbPort} user=#{dbUserna
 runAction :: PGInfo -> SqlPersistT (LoggingT IO) a -> IO a
 runAction connectionString action = 
   runStdoutLoggingT  $ filterLogger logFilter $ withPostgresqlConn connectionString $ \backend ->
-    runReaderT action backend
+    runSqlConn  action backend
 
 migrateDB :: PGInfo -> IO ()
 migrateDB connString = runAction connString (runMigration migrateAll)
