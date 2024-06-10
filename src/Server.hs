@@ -25,6 +25,8 @@ import           Database.Persist.Types
 import           Config
 import           Database
 import           Schema
+import           Control.Exception.Safe hiding (Handler)
+import           Data.ByteString.Lazy.UTF8 as BLU
 
 
 
@@ -38,25 +40,31 @@ employeesAPI = Proxy :: Proxy EmployeesAPI
 
 fetchEmployeeH :: PGInfo -> Int64 -> Handler Employee
 fetchEmployeeH  connString eid = do
-  maybeEmployee <- liftIO $ fetchEmployeeQ connString eid
+  maybeEmployee <- liftIO $ (Right <$> fetchEmployeeQ connString eid) `catch` (\(e :: SomeException) ->  return (Left e) )
   case maybeEmployee of
-    Just emp -> return emp
-    Nothing -> Handler $ (throwE $ err400 { errBody = "Could not find employee with that ID" })
+    Left err -> Handler $ (throwE $ err400 { errBody = ("got exception :") <> (BLU.fromString $ show err) })
+    Right (Just emp) -> return emp
+    Right Nothing -> Handler $ (throwE $ err400 { errBody = "Could not find employee with that ID" })
 
 
 fetchEmployeeByNameH :: PGInfo -> Maybe Text -> Handler [Employee]
 fetchEmployeeByNameH connString empN = do
   empList <- do 
     liftIO $ do 
-      employees <- selectByName connString empN
-      return $ entityVal <$> employees
+      employees <- (Right <$> selectByName connString empN) `catch` (\(e :: SomeException) ->  return (Left e) )
+      return $ (fmap.fmap) entityVal employees
   case empList of 
-      [] -> Handler $ (throwE $ err400 { errBody = "Could not find employee with the Name " })
-      _ -> return empList
+      Left err -> Handler $ (throwE $ err400 { errBody = ("got exception :") <> (BLU.fromString $ show err) })
+      Right [] -> Handler $ (throwE $ err400 { errBody = "Could not find employee with the Name " })
+      Right suc-> return suc
 
 
 createEmployeeH ::  PGInfo -> Employee -> Handler Int64
-createEmployeeH connString emp = liftIO $ createEmployeeQ connString emp
+createEmployeeH connString emp = do
+  res <- liftIO $ (Right <$> createEmployeeQ connString emp) `catch` (\(e :: SomeException) ->  return (Left e) )
+  case res of
+    Left err ->  Handler $ (throwE $ err400 { errBody = ("got exception :") <> (BLU.fromString $ show err) })
+    Right suc -> return suc
 
 server ::  PGInfo -> Server EmployeesAPI
 server pGInfo = 

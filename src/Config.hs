@@ -27,3 +27,5 @@ data DBConfig = DBConfig
     } 
     deriving (Show,Eq,Generic)
     deriving anyclass (ToJSON,FromJSON)
+
+newtype  ConfigPathArg = ConfigPathArg {configFilePath :: String} deriving (Show,Eq)

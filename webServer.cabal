@@ -38,9 +38,11 @@ library
         , mtl
         , monad-logger
         , transformers
-        , postgresql-simple
         , wai-logger
         , string-interpolate
+        , safe-exceptions
+        , utf8-string
+        
         
     hs-source-dirs: src
     ghc-options: -Wall -Werror
@@ -53,6 +55,7 @@ executable webServer
   -- other-extensions:
   build-depends:       base >=4.13 && <4.14,
                        webServer,
-                       aeson
+                       aeson,
+                       optparse-applicative
   -- hs-source-dirs:
   default-language:    Haskell2010

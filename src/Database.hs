@@ -37,7 +37,7 @@ logFilter _ LevelError     = True
 logFilter _ LevelWarn      = True
 logFilter _ LevelInfo      = True
 logFilter _ LevelDebug     = True
-logFilter _ (LevelOther _) = True
+logFilter _ (LevelOther _) = False
 
 
 fetchEmployeeQ :: PGInfo -> Int64 -> IO (Maybe Employee)
