@@ -1,14 +1,17 @@
 # haskellWebServer
 
-steps to build
+<h5>steps to build </h5>
 
-1) cd  into project directory and do  cabal build
+ <code> cd </code>  into project directory 
+ 
+ <code> cabal build </code>
+
+ 
+<h5>To Run the executable <h5>
 
    
-To Run the executable,
-
-./<exe> --configFilePath <path to app.json file>
-
-
-To  change the database connection string & app port,
+   <code> ./{exe_path} --configFilePath {app.json path} </code>
+   
+   
+   To  change the database connection string & app port,
 please modify app.json.
